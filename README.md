@@ -1,5 +1,5 @@
 Density Blend Master 🧪
-Precision Formulation Density Calculator for Professionals**
+Precision Formulation Density Calculator for Professionals
 
 Density Blend Master is a lightweight, mobile-responsive web application designed for pharmaceutical scientists, chemists, and culinary professionals. It calculates the final bulk density of a mixture containing up to 25 different ingredients with varying densities.
 
