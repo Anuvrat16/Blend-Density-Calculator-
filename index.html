@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Density Blend Master</title>
+    <style>
+        :root {
+            --primary: #2563eb;
+            --success: #059669;
+            --bg: #f8fafc;
+            --card: #ffffff;
+            --text: #1e293b;
+        }
+
+        body {
+            font-family: -apple-system, system-ui, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            background-color: var(--bg);
+            color: var(--text);
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 500px;
+        }
+
+        h1 { font-size: 1.5rem; text-align: center; color: var(--primary); }
+
+        /* Dashboard Style */
+        .dashboard {
+            background: var(--primary);
+            color: white;
+            padding: 20px;
+            border-radius: 16px;
+            margin-bottom: 20px;
+            position: sticky;
+            top: 10px;
+            z-index: 100;
+            box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3);
+        }
+
+        .result-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            text-align: center;
+        }
+
+        .final-density {
+            grid-column: span 2;
+            font-size: 2rem;
+            font-weight: bold;
+            margin-top: 10px;
+            border-top: 1px solid rgba(255,255,255,0.2);
+            padding-top: 10px;
+        }
+
+        /* Ingredient Cards */
+        .ingredient-card {
+            background: var(--card);
+            padding: 15px;
+            border-radius: 12px;
+            margin-bottom: 12px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+            position: relative;
+            border-left: 5px solid var(--primary);
+        }
+
+        .card-row {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 10px;
+            margin-bottom: 10px;
+        }
+
+        input, select {
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            font-size: 16px; /* Prevents iOS zoom on focus */
+        }
+
+        label { font-size: 12px; font-weight: bold; color: #64748b; display: block; margin-bottom: 4px; }
+
+        .btn {
+            width: 100%;
+            padding: 12px;
+            border: none;
+            border-radius: 8px;
+            font-weight: bold;
+            cursor: pointer;
+            margin-top: 10px;
+        }
+
+        .btn-add { background: #e0e7ff; color: var(--primary); }
+        .btn-reset { background: #fee2e2; color: #dc2626; margin-top: 20px; }
+        .remove-btn {
+            position: absolute;
+            top: 5px;
+            right: 5px;
+            background: none;
+            border: none;
+            color: #cbd5e1;
+            font-size: 20px;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>Density Blend Master</h1>
+
+    <div class="dashboard">
+        <div class="result-grid">
+            <div><small>Total Mass</small><br><span id="totalMass">0</span> g</div>
+            <div><small>Total Vol</small><br><span id="totalVol">0</span> mL</div>
+            <div class="final-density">
+                <span id="finalDensity">0.000</span> <small style="font-size: 14px;">g/mL (cc)</small>
+            </div>
+        </div>
+    </div>
+
+    <div id="ingredientList">
+        </div>
+
+    <button class="btn btn-add" onclick="addIngredient()">+ Add Ingredient</button>
+    <button class="btn btn-reset" onclick="resetAll()">Reset All</button>
+</div>
+
+<script>
+    let ingredientCount = 0;
+
+    function addIngredient() {
+        if (ingredientCount >= 25) return;
+        ingredientCount++;
+
+        const card = document.createElement('div');
+        card.className = 'ingredient-card';
+        card.id = `card-${ingredientCount}`;
+        card.innerHTML = `
+            <button class="remove-btn" onclick="removeIngredient(${ingredientCount})">&times;</button>
+            <div style="margin-bottom:10px;">
+                <label>Ingredient Name</label>
+                <input type="text" placeholder="e.g. Olive Oil" style="width:90%">
+            </div>
+            <div class="card-row">
+                <div>
+                    <label>Quantity</label>
+                    <input type="number" step="any" class="qty" oninput="calculate()" placeholder="0">
+                </div>
+                <div>
+                    <label>Unit</label>
+                    <select class="unit" onchange="calculate()">
+                        <option value="g">grams</option>
+                        <option value="ml">mL</option>
+                    </select>
+                </div>
+            </div>
+            <div>
+                <label>Ingredient Density (g/mL)</label>
+                <input type="number" step="any" class="density" oninput="calculate()" value="1.0">
+            </div>
+        `;
+        document.getElementById('ingredientList').appendChild(card);
+        calculate();
+    }
+
+    function removeIngredient(id) {
+        const el = document.getElementById(`card-${id}`);
+        el.remove();
+        ingredientCount--;
+        calculate();
+    }
+
+    function calculate() {
+        let totalMass = 0;
+        let totalVol = 0;
+
+        const cards = document.querySelectorAll('.ingredient-card');
+        cards.forEach(card => {
+            const qty = parseFloat(card.querySelector('.qty').value) || 0;
+            const unit = card.querySelector('.unit').value;
+            const density = parseFloat(card.querySelector('.density').value) || 1;
+
+            if (unit === 'g') {
+                totalMass += qty;
+                totalVol += (qty / density);
+            } else {
+                totalVol += qty;
+                totalMass += (qty * density);
+            }
+        });
+
+        const finalDensity = totalVol > 0 ? (totalMass / totalVol) : 0;
+
+        document.getElementById('totalMass').innerText = totalMass.toFixed(2);
+        document.getElementById('totalVol').innerText = totalVol.toFixed(2);
+        document.getElementById('finalDensity').innerText = finalDensity.toFixed(3);
+    }
+
+    function resetAll() {
+        document.getElementById('ingredientList').innerHTML = '';
+        ingredientCount = 0;
+        addIngredient();
+    }
+
+    // Initialize with one row
+    addIngredient();
+</script>
+
+</body>
+</html>
