@@ -7,8 +7,8 @@ Density Blend Master is a lightweight, mobile-responsive web application designe
 [anuvrat03.github.io]
 
 📋 Features
-* Dynamic Ingredient Management:** Add up to 25 ingredients per formulation.
-* Dual-Unit Input:** Seamlessly toggle between grams (mass) and pmL (volume).
+* Dynamic Ingredient Management:Add up to 25 ingredients per formulation.
+* Dual-Unit Input:Seamlessly toggle between grams (mass) and pmL (volume).
 * Smart Back-Calculation: Automatically calculates missing mass/volume values based on the specific gravity (density) of each ingredient.
 * Real-Time Dashboard:A sticky header provides instant updates on:
   * Total Batch Mass (g)
